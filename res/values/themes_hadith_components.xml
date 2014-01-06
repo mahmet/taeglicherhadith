@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Generated with http://android-holo-colors.com -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <style name="hadith_components" parent="@style/_hadith_components"/>
+
+  <style name="_hadith_components" parent="android:Theme.Holo.Light.DarkActionBar">
+
+    <item name="android:editTextBackground">@drawable/hadith_components_edit_text_holo_light</item>
+
+    <item name="android:textColorHighlight">#990b688b</item>
+    <item name="android:textSelectHandleLeft">@drawable/hadith_components_text_select_handle_left</item>
+    <item name="android:textSelectHandleRight">@drawable/hadith_components_text_select_handle_right</item>
+    <item name="android:textSelectHandle">@drawable/hadith_components_text_select_handle_middle</item>
+
+    <item name="android:buttonStyle">@style/Buttonhadith_components</item>
+
+    <item name="android:imageButtonStyle">@style/ImageButtonhadith_components</item>
+
+    <item name="android:fastScrollThumbDrawable">@drawable/hadith_components_fastscroll_thumb_holo</item>
+
+  </style>
+
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Täglicher Hadith</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_favorite">Zu Favoriten hinzufügen</string>
+    <string name="action_social">Teilen auf</string>
+    <string name="hadith_title">Titel</string>
+    <string name="hadith_text">Hadith Text</string>
+    
+</resources>
