@@ -77,15 +77,17 @@ public final class R {
         public static final int tab_unselected_pressed_hadith=0x7f020035;
     }
     public static final class id {
-        public static final int action_favorite=0x7f050007;
-        public static final int action_social=0x7f050008;
-        public static final int detail_hadith_title=0x7f050006;
+        public static final int action_favorite=0x7f050009;
+        public static final int action_social=0x7f05000a;
+        public static final int detail_hadith_text=0x7f050008;
+        public static final int detail_hadith_title=0x7f050007;
         public static final int favoritesListView=0x7f050002;
         public static final int fragment_hadith=0x7f050000;
         public static final int hadithText=0x7f050005;
         public static final int hadithTitle=0x7f050004;
         public static final int pager=0x7f050001;
         public static final int scrollView1=0x7f050003;
+        public static final int scrollView2=0x7f050006;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;

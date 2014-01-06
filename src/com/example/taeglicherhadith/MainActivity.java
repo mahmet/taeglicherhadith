@@ -1,11 +1,6 @@
 package com.example.taeglicherhadith;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,11 +12,11 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.example.taeglicherhadith.R;
+import com.example.taeglicherhadith.db.Hadith;
+import com.example.taeglicherhadith.db.HadithDataSource;
 import com.example.tabswithswipe.adapter.TabsPagerAdapter;
 
 import android.os.Bundle;
@@ -40,6 +35,8 @@ import android.graphics.Color;
 
 public class MainActivity extends FragmentActivity implements TabListener   {
 
+	public static final String LOGTAG = "DAILY_HADITH";
+	
 	private ViewPager viewPager;
 	private TabsPagerAdapter mAdapter;
 	private ActionBar actionBar;
@@ -49,10 +46,16 @@ public class MainActivity extends FragmentActivity implements TabListener   {
 	//tab titles
 	private String[] tabs = { "Hadith", "Favoriten"};
 	
+	//Database handling
+	HadithDataSource datasource;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        datasource = new HadithDataSource(this);
+        datasource.open();
         
         //Initialization
         viewPager = (ViewPager) findViewById(R.id.pager);
@@ -107,17 +110,7 @@ public class MainActivity extends FragmentActivity implements TabListener   {
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch (item.getItemId()) {
 		case R.id.action_favorite:
-			try {
-				onFavoritesIconClicked();
-			} catch (FileNotFoundException e) {
-				
-				e.printStackTrace();
-			} catch (JSONException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				
-				e.printStackTrace();
-			}
+			onFavoritesIconClicked();
 			return true;
 		case R.id.action_social:
 			return true;
@@ -144,60 +137,32 @@ public class MainActivity extends FragmentActivity implements TabListener   {
 
 	@Override
 	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
 		
 	}
 	
-	public void onFavoritesIconClicked() throws JSONException, IOException {
-		
-		String hadithTitleToSave = "title";
-		String hadithTextToSave = "hadith";
-		
+	@Override
+	protected void onResume() {
+		super.onResume();
+		datasource.open();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		datasource.close();
+	}
+	
+	public void onFavoritesIconClicked() {
 		String fetchedHadith = fetchHadith();
 		JSONObject hadithObject;
 		try {
 			hadithObject = new JSONObject(fetchedHadith);
 			Log.i("HADITH", hadithObject.getString("hadith"));
-			hadithTitleToSave = hadithObject.getString("title");
-			hadithTextToSave = hadithObject.getString("hadith");
+			Hadith hadith = new Hadith(hadithObject.getString("title"), hadithObject.getString("hadith"));
+			hadith = datasource.create(hadith);
+			Log.i(LOGTAG, "Hadith added to database. ID: " + hadith.getId() + " title: " + hadith.getTitle());
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		
-		JSONArray hadithArray = new JSONArray();
-		JSONObject hadith = new JSONObject();
-		hadith.put("title", hadithTitleToSave);
-		hadith.put("hadith", hadithTextToSave);
-		hadithArray.put(hadith);
-		
-		File fileToSave = new File("favorites");
-		
-		String text = hadithArray.toString();
-		
-		if(fileToSave.exists()) {
-			FileInputStream fis = openFileInput("favorites");
-			BufferedInputStream bis = new BufferedInputStream(fis);
-			StringBuffer b = new StringBuffer();
-			while (bis.available() != 0) {
-				char c = (char) bis.read();
-				b.append(c);
-			}
-			bis.close();
-			fis.close();
-			
-			JSONArray oldHadithArray = new JSONArray(b.toString());
-			oldHadithArray.put(hadith);
-			
-			String newText = oldHadithArray.toString();
-			
-			FileOutputStream fos = openFileOutput("favorites", MODE_PRIVATE);
-			fos.write(newText.getBytes());
-			fos.close();
-			
-		} else {
-			FileOutputStream fos = openFileOutput("favorites", MODE_PRIVATE);
-			fos.write(text.getBytes());
-			fos.close();
 		}
 	}
 	

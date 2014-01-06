@@ -1,19 +1,15 @@
 package com.example.taeglicherhadith;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
-import org.json.JSONArray;
-import org.json.JSONException;
+import java.util.List;
 
 import com.example.taeglicherhadith.R;
+import com.example.taeglicherhadith.db.Hadith;
+import com.example.taeglicherhadith.db.HadithDataSource;
 
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,32 +21,26 @@ import android.widget.ListView;
 public class FavoritesFragment extends Fragment {
 
 	ListView listView;
+	List<Hadith> ahadith;
 	
-	@Override
+	HadithDataSource datasource;
+	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
 		final View rootView = inflater.inflate(R.layout.fragment_favorites, container, false);
 		
-		listView = (ListView) rootView.findViewById(R.id.favoritesListView);
-		String[] values = new String[] {};
 		
-		try {
-			JSONArray hadithArray = getJsonArray();
-			for(int i=0; i<hadithArray.length(); i++) {
-				values[i] = hadithArray.getJSONObject(i).getString("title");
-			}
-			
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, values);
-			
-			listView.setAdapter(adapter);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		datasource = new HadithDataSource(rootView.getContext());
+		
+		listView = (ListView) rootView.findViewById(R.id.favoritesListView);
+		
+		ahadith = datasource.findAllHadith();
+		
+		ArrayAdapter<Hadith> adapter = new ArrayAdapter<Hadith>(rootView.getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, ahadith);
+		
+		listView.setAdapter(adapter);
 		
 		listView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -58,34 +48,16 @@ public class FavoritesFragment extends Fragment {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				
+				Hadith hadith = (Hadith) listView.getItemAtPosition(arg2);
+				
 				Intent intent = new Intent(rootView.getContext(), HadithDetailActivity.class);
-        		intent.putExtra("title", listView.getItemAtPosition(arg2).toString());
+        		intent.putExtra("title", hadith.getTitle());
+        		intent.putExtra("hadith", hadith.getHadith());
         		startActivity(intent);
 			}	 
 		}); 
 		
 		return rootView;
-	}
-	
-	private JSONArray getJsonArray() throws IOException, JSONException {
-		File file = new File("favorites");
-		if(file.exists()) {
-			FileInputStream fis = new FileInputStream(file);
-			BufferedInputStream bis = new BufferedInputStream(fis);
-			StringBuffer b = new StringBuffer();
-			while (bis.available() != 0) {
-				char c = (char) bis.read();
-				b.append(c);
-			}
-			bis.close();
-			fis.close();
-			
-			JSONArray hadithArray = new JSONArray(b.toString());
-			return hadithArray;
-		} else {
-			Log.e("FILENOTFOUND", "File could not be loaded: Not existent");
-		}
-		return null;
 	}
 	
 }
