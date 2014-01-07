@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -29,7 +30,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.app.ActionBar.TabListener;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 
@@ -122,7 +125,6 @@ public class MainActivity extends FragmentActivity implements TabListener   {
 
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -153,20 +155,42 @@ public class MainActivity extends FragmentActivity implements TabListener   {
 	}
 	
 	public void onFavoritesIconClicked() {
-		String fetchedHadith = fetchHadith();
-		JSONObject hadithObject;
-		try {
-			hadithObject = new JSONObject(fetchedHadith);
-			Log.i("HADITH", hadithObject.getString("hadith"));
-			Hadith hadith = new Hadith(hadithObject.getString("title"), hadithObject.getString("hadith"));
+		
+		boolean alreadySaved = false;
+		
+		Hadith hadith = fetchHadithObject();
+		List<Hadith> ahadith = datasource.findAllHadith();
+		
+		for (Hadith hadithItem : ahadith) {
+			if(hadithItem.getTitle().equals(hadith.getTitle())  && 
+			   hadithItem.getHadith().equals(hadith.getHadith())) {
+				alreadySaved = true;
+			}
+		}
+		
+		if(alreadySaved) {
+			Context context = getApplicationContext();
+			CharSequence text = "Hadith bereits in den Favoriten vorhanden.";
+			int duration = Toast.LENGTH_LONG;
+			Toast toast = Toast.makeText(context, text, duration);
+			toast.show();
+		} else {
 			hadith = datasource.create(hadith);
 			Log.i(LOGTAG, "Hadith added to database. ID: " + hadith.getId() + " title: " + hadith.getTitle());
-		} catch (Exception e) {
-			e.printStackTrace();
+			
+			Context context = getApplicationContext();
+			CharSequence text = "Hadith zu den Favoriten hinzugefügt.";
+			int duration = Toast.LENGTH_LONG;
+			Toast toast = Toast.makeText(context, text, duration);
+			toast.show();
+			
+			FavoritesFragment favoritesFragment = mAdapter.getFragment();
+			favoritesFragment.refreshList();
 		}
+		
 	}
 	
-public String fetchHadith() {
+public String fetchHadithJSON() {
 		
 		StringBuilder builder = new StringBuilder();
 		HttpClient client = new DefaultHttpClient();
@@ -195,13 +219,14 @@ public String fetchHadith() {
 		return builder.toString();
 	}
 
-public String fetchHadithText() {
-	String fetchedHadith = fetchHadith();
+public Hadith fetchHadithObject() {
+	String fetchedHadith = fetchHadithJSON();
 	JSONObject hadithObject;
 	try {
 		hadithObject = new JSONObject(fetchedHadith);
 		Log.i("HADITH", hadithObject.getString("hadith"));
-		return hadithObject.getString("hadith");
+		Hadith hadith = new Hadith(hadithObject.getString("title"), hadithObject.getString("hadith"));
+		return hadith;
 	} catch (Exception e) {
 		e.printStackTrace();
 	}

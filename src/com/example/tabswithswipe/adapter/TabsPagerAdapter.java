@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 public class TabsPagerAdapter extends FragmentPagerAdapter {
 
+	FavoritesFragment favoritesFragment;
+	
 	public TabsPagerAdapter(FragmentManager fm) {
 		super(fm);
 	}
@@ -22,7 +24,8 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
             return new HadithFragment();
         case 1:
             // Favorites fragment
-            return new FavoritesFragment();
+        	favoritesFragment =  new FavoritesFragment();
+            return favoritesFragment;
         }
  
         return null;
@@ -33,6 +36,10 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
 	public int getCount() {
 		// TODO Auto-generated method stub
 		return 2;
+	}
+	
+	public FavoritesFragment getFragment() {
+		return favoritesFragment;
 	}
 
 }

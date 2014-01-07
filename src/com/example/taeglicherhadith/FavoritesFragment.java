@@ -7,7 +7,6 @@ import com.example.taeglicherhadith.db.Hadith;
 import com.example.taeglicherhadith.db.HadithDataSource;
 
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -22,6 +21,7 @@ public class FavoritesFragment extends Fragment {
 
 	ListView listView;
 	List<Hadith> ahadith;
+	ArrayAdapter<Hadith> adapter;
 	
 	HadithDataSource datasource;
 	
@@ -30,15 +30,13 @@ public class FavoritesFragment extends Fragment {
 
 		final View rootView = inflater.inflate(R.layout.fragment_favorites, container, false);
 		
-		
-		
 		datasource = new HadithDataSource(rootView.getContext());
 		
 		listView = (ListView) rootView.findViewById(R.id.favoritesListView);
 		
 		ahadith = datasource.findAllHadith();
 		
-		ArrayAdapter<Hadith> adapter = new ArrayAdapter<Hadith>(rootView.getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, ahadith);
+		adapter = new ArrayAdapter<Hadith>(rootView.getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, ahadith);
 		
 		listView.setAdapter(adapter);
 		
@@ -58,6 +56,20 @@ public class FavoritesFragment extends Fragment {
 		}); 
 		
 		return rootView;
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		adapter.notifyDataSetChanged();
+	}
+	
+	public void refreshList() {
+		ahadith = datasource.findAllHadith();
+		adapter.clear();
+		adapter.addAll(ahadith);
+		adapter.notifyDataSetChanged();
+		listView.setAdapter(adapter);
 	}
 	
 }
