@@ -27,7 +27,8 @@
                 android:lineSpacingExtra="7dp"
                 android:padding="5dp"
                 android:paddingBottom="20dp"
-                android:text="@string/hadith_text" />
+                android:text="@string/hadith_text"
+                android:textIsSelectable="true" />
 
         </LinearLayout>
     </ScrollView>

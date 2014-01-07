@@ -16,10 +16,12 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.ActionBar.TabListener;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 
@@ -38,6 +40,9 @@ public class MainActivity extends FragmentActivity implements TabListener   {
 	
 	//Database handling
 	HadithDataSource datasource;
+	
+	//Social sharing
+	private ShareActionProvider mShareActionProvider;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +91,7 @@ public class MainActivity extends FragmentActivity implements TabListener   {
 				
 			}
 		});
+        
     }
 
 
@@ -93,7 +99,38 @@ public class MainActivity extends FragmentActivity implements TabListener   {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        
+        MenuItem item = menu.findItem(R.id.action_social);
+        
+        mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+
+        setShareIntent();
+        
         return true;
+    }
+    
+    public void doShare() {
+    	HadithFetchTask fetchTask = new HadithFetchTask();
+		Hadith hadith = fetchTask.doInBackground("http://islamtemplate.com/neu/hadith.php");
+    	
+    	Intent intent = new Intent(Intent.ACTION_SEND);
+    	intent.setType("text/plain");
+    	intent.putExtra(Intent.EXTRA_SUBJECT, hadith.getTitle());
+    	intent.putExtra(Intent.EXTRA_TEXT, hadith.getHadith());
+    	mShareActionProvider.setShareIntent(intent);
+    }
+    
+    private void setShareIntent() {
+    	if(mShareActionProvider != null) {
+    		HadithFetchTask fetchTask = new HadithFetchTask();
+    		Hadith hadith = fetchTask.doInBackground("http://islamtemplate.com/neu/hadith.php");
+    		
+            Intent intent = new Intent(Intent.ACTION_SEND);
+        	intent.setType("text/plain");
+        	intent.putExtra(Intent.EXTRA_SUBJECT, hadith.getTitle());
+        	intent.putExtra(Intent.EXTRA_TEXT, hadith.getHadith());
+        	mShareActionProvider.setShareIntent(intent);
+    	}
     }
     
     @Override
@@ -103,6 +140,7 @@ public class MainActivity extends FragmentActivity implements TabListener   {
 			onFavoritesIconClicked();
 			return true;
 		case R.id.action_social:
+			doShare();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
