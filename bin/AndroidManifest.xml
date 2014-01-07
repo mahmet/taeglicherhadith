@@ -29,7 +29,6 @@
             android:name="com.example.taeglicherhadith.HadithDetailActivity"
             android:label="@string/app_name"
             android:parentActivityName="com.example.taeglicherhadith.MainActivity">
-            
         </activity>
     </application>
 

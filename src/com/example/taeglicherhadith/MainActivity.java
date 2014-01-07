@@ -1,19 +1,6 @@
 package com.example.taeglicherhadith;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONObject;
 
 import com.example.taeglicherhadith.R;
 import com.example.taeglicherhadith.db.Hadith;
@@ -121,26 +108,6 @@ public class MainActivity extends FragmentActivity implements TabListener   {
 			return super.onOptionsItemSelected(item);
 		}
     }
-
-
-	@Override
-	public void onTabReselected(Tab tab, FragmentTransaction ft) {
-		
-	}
-
-
-	@Override
-	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		
-		viewPager.setCurrentItem(tab.getPosition());
-		
-	}
-
-
-	@Override
-	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-		
-	}
 	
 	@Override
 	protected void onResume() {
@@ -158,7 +125,8 @@ public class MainActivity extends FragmentActivity implements TabListener   {
 		
 		boolean alreadySaved = false;
 		
-		Hadith hadith = fetchHadithObject();
+		HadithFetchTask fetchTask = new HadithFetchTask();
+		Hadith hadith = fetchTask.doInBackground("http://islamtemplate.com/neu/hadith.php");
 		List<Hadith> ahadith = datasource.findAllHadith();
 		
 		for (Hadith hadithItem : ahadith) {
@@ -189,48 +157,26 @@ public class MainActivity extends FragmentActivity implements TabListener   {
 		}
 		
 	}
-	
-public String fetchHadithJSON() {
+
+
+	@Override
+	public void onTabReselected(Tab arg0, FragmentTransaction arg1) {
+
 		
-		StringBuilder builder = new StringBuilder();
-		HttpClient client = new DefaultHttpClient();
-		HttpGet httpGet = new HttpGet("http://islamtemplate.com/neu/hadith.php");
-		try {
-			HttpResponse response = client.execute(httpGet);
-			StatusLine statusLine = response.getStatusLine();
-			int statusCode = statusLine.getStatusCode();
-			if (statusCode == 200) {
-				HttpEntity entity = response.getEntity();
-				InputStream content = entity.getContent();
-				BufferedReader reader = new BufferedReader(new InputStreamReader(content));
-				String line;
-				while ((line = reader.readLine()) != null) {
-					builder.append(line);
-				}
-			} else {
-				
-			}
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return builder.toString();
 	}
 
-public Hadith fetchHadithObject() {
-	String fetchedHadith = fetchHadithJSON();
-	JSONObject hadithObject;
-	try {
-		hadithObject = new JSONObject(fetchedHadith);
-		Log.i("HADITH", hadithObject.getString("hadith"));
-		Hadith hadith = new Hadith(hadithObject.getString("title"), hadithObject.getString("hadith"));
-		return hadith;
-	} catch (Exception e) {
-		e.printStackTrace();
+
+	@Override
+	public void onTabSelected(Tab arg0, FragmentTransaction arg1) {
+		
+		viewPager.setCurrentItem(arg0.getPosition());
 	}
-	return null;
-}
+
+
+	@Override
+	public void onTabUnselected(Tab arg0, FragmentTransaction arg1) {
+		
+		
+	}
     
 }
